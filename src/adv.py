@@ -61,17 +61,19 @@ room["treasure"].s_to = room["narrow"]
 # If the user enters "q", quit the game.
 
 player = Player("Ned", room["outside"])
-print(room["outside"].n_to)
 
 playing = True
 
 os.system("cls")
 while playing:
     print(player.current_room)
+
     selection = input(
         "What direction do you wish to travel? \n  (n): North\n  (e): East\n  (s): South\n  (w): West\n  (q): Quit\n"
     )
+
     if selection == "q":
+        # Quit the game
         playing = False
     elif selection in ("n", "e", "w", "s"):
         # Move the player to the room in that direction if possible
@@ -82,7 +84,7 @@ while playing:
             os.system("cls")
         except:
             os.system("cls")
-            print("Nothing to find in that direction")
+            print("**Nothing to find in that direction**")
     else:
         os.system("cls")
         print("Please select an appropriate input")
