@@ -69,8 +69,15 @@ while playing:
     print(player.current_room)
 
     selection = input(
-        "What direction do you wish to travel? \n  (n): North\n  (e): East\n  (s): South\n  (w): West\n  (q): Quit\n"
-    )
+        """
+In what direction do you wish to travel?
+    (n): North
+    (s): South
+    (e): East
+    (w): West
+    (q): Quit
+        """
+    ).lower()
 
     if selection == "q":
         # Quit the game
