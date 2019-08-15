@@ -124,7 +124,7 @@ What would you like to do next?
 
         investigation_check = player.investigate()
         clear()
-        print(f"You rolled a {investigation_check} and find...")
+        print(f"You roll a {investigation_check} and find...")
 
         found_items = [
             item
@@ -142,11 +142,13 @@ What would you like to do next?
     # Print the player's inventory
     elif selection == "i":
         clear()
+        print("Inventory:")
+        print("-----------")
         for item in player.loot:
-            print(item.description)
+            print("  " + item.description)
 
     # Look for an action like get or drop
-    elif len(selection.split(" ")) > 1:
+    elif len(selection.split()) > 1:
 
         action, item, *left_over = selection.split(" ")
 
