@@ -1,6 +1,7 @@
 import os
 from room import Room
 from player import Player
+from item import Item
 
 # Declare all the rooms
 
@@ -30,6 +31,18 @@ earlier adventurers. The only exit is to the south.""",
     ),
 }
 
+loot = {
+    "rare_weapon": Item(
+        "sword", "Magical weapon that adds +2 to attack and damage rolls"
+    ),
+    "spell_1": Item("scroll", "Magical scroll containing the Fireball spell"),
+    "spell_2": Item("scroll", "Magical scroll containing the Cure Wounds spell"),
+    "legendary_breastplate": Item(
+        "armor", "The breastplate worn by the great warrior Francis, Lord of Storms"
+    ),
+    "gold": Item("currency", "250 pieces of gold"),
+}
+
 
 # Link rooms together
 
@@ -41,6 +54,14 @@ room["overlook"].s_to = room["foyer"]
 room["narrow"].w_to = room["foyer"]
 room["narrow"].n_to = room["treasure"]
 room["treasure"].s_to = room["narrow"]
+
+room["overlook"].treasure = [loot["rare_weapon"]]
+room["foyer"].treasure = [loot["spell_2"], loot["gold"]]
+room["treasure"].treasure = [
+    loot["spell_1"],
+    loot["legendary_breastplate"],
+    loot["gold"],
+]
 
 
 #
@@ -59,39 +80,98 @@ room["treasure"].s_to = room["narrow"]
 # Print an error message if the movement isn't allowed.
 #
 # If the user enters "q", quit the game.
+def clear():
+    os.system("cls")
+
 
 player = Player("Ned", room["outside"])
 
 playing = True
 
-os.system("cls")
+clear()
 while playing:
     print(player.current_room)
 
     selection = input(
         """
-In what direction do you wish to travel?
-    (n): North
-    (s): South
-    (e): East
-    (w): West
+What would you like to do next?
+    (n): North  (s): South  (e): East  (w): West
+    (v): Investigate
+    (i): Inventory
     (q): Quit
         """
     ).lower()
 
+    # Quit the game
     if selection == "q":
-        # Quit the game
+
         playing = False
+
+    # Move the player to the room in that direction if possible
     elif selection in ("n", "e", "w", "s"):
-        # Move the player to the room in that direction if possible
+
         direction = selection + "_to"
         try:
             new_room = getattr(player.current_room, direction)
             player.current_room = new_room
-            os.system("cls")
+            clear()
         except:
-            os.system("cls")
+            clear()
             print("**Nothing to find in that direction**")
+
+    # Investigate to find items in current room
+    elif selection == "v":
+
+        investigation_check = player.investigate()
+        clear()
+        print(f"You rolled a {investigation_check} and find...")
+
+        found_items = [
+            item
+            for item in player.current_room.treasure
+            if item.find_dc <= investigation_check
+        ]
+
+        # Print the investigation results
+        if len(found_items) == 0:
+            print("  Nothing")
+        else:
+            for item in found_items:
+                print(f"  ({item.name}) {item.description}")
+
+    # Print the player's inventory
+    elif selection == "i":
+        clear()
+        for item in player.loot:
+            print(item.description)
+
+    # Look for an action like get or drop
+    elif len(selection.split(" ")) > 1:
+
+        action, item, *left_over = selection.split(" ")
+
+        # Handle getting a new item from the room
+        if action in ("get", "take"):
+            collected_item = list(
+                filter(lambda el: el.name == item, player.current_room.treasure)
+            )[0]
+
+            clear()
+            collected_item.on_take()
+            player.loot.append(collected_item)
+            player.current_room.treasure.remove(collected_item)
+
+        # Handle dropping an item from player's inventory
+        elif action == "drop":
+
+            dropped_item = list(filter(lambda el: el.name == item, player.loot))[0]
+
+            clear()
+            dropped_item.on_drop()
+            player.current_room.treasure.append(dropped_item)
+            player.loot.remove(dropped_item)
+
+    # Handle all other inputs
     else:
-        os.system("cls")
+        clear()
         print("Please select an appropriate input")
