@@ -62,7 +62,7 @@ room["treasure"].treasure = [
     loot["legendary_breastplate"],
     loot["gold"],
 ]
-monster_stats = {"str": 16, "dex": 14, "con": 16, "int": 6, "wis": 12, "cha": 6}
+monster_stats = {"str": 12, "dex": 16, "con": 12, "int": 6, "wis": 10, "cha": 6}
 room["treasure"].monsters = [Character("Kobold", 2, monster_stats)]
 
 
@@ -86,17 +86,27 @@ def clear():
     os.system("cls")
 
 
-player_stats = {"str": 12, "dex": 14, "con": 16, "int": 10, "wis": 16, "cha": 8}
-player = Player("Ned", room["outside"], 3, player_stats)
+player_stats = {"str": 12, "dex": 14, "con": 16, "int": 14, "wis": 12, "cha": 8}
+player_skills = ["Investigation", "Stealth", "Persuasion", "Acrobatics"]
+player = Player("Ned", room["outside"], 3, player_stats, player_skills)
 # player.hp += player.modifiers["con"] * player.level
 
 playing = True
 
 clear()
 while playing:
+    combat = False
     # print(player.stats["wis"].score)
-    # print(player.current_hp)
+    print(player.armor_class)
     print(player.current_room)
+
+    if len(player.current_room.monsters) > 0:
+        clear()
+        print(f"You've been attacked by {player.current_room.monsters[0].name}")
+        combat = True
+
+    # while combat:
+    #     print("You can attack by typing 'a'")
 
     selection = input(
         """
@@ -128,7 +138,7 @@ What would you like to do next?
     # Investigate to find items in current room
     elif selection == "v":
 
-        investigation_check = player.investigate()
+        investigation_check = player.action("Investigation")
         clear()
         print(f"You roll a {investigation_check} and find...")
 

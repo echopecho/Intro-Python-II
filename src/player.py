@@ -3,6 +3,25 @@
 import random
 import math
 
+skill_dict = {
+    "str": ["Athletics"],
+    "dex": ["Acrobatics", "Sleight of Hand", "Stealth", "Initiative"],
+    "con": ["Concentration"],
+    "int": ["Arcana", "Investigation", "Nature", "Religion"],
+    "wis": ["Animal Handling", "Insight", "Medicine", "Perception", "Survival"],
+    "cha": ["Deception", "Intimidation", "Performance", "Persuasion"],
+}
+
+
+def find_skill(skill):
+    for key, value in skill_dict.items():
+        if skill in value:
+            return key
+
+
+def dice_roll(sides):
+    return random.randint(1, sides)
+
 
 class Character:
     def __init__(self, name, level, stats):
@@ -21,17 +40,7 @@ class Character:
         return stat_list
 
     def attack(self):
-        weapon = [item for item in self.loot if item.name == "sword"]
-        if not weapon:
-            print("You have no weapon!")
-        else:
-            damage = (
-                random.randint(1, weapon[0].damage)
-                + self.stats["dex"].modifier
-                + self.proficiency
-            )
-            print(f"You did {damage} points of damage!")
-            return damage
+        return
 
     class Stat:
         def __init__(self, char, stat):
@@ -43,17 +52,31 @@ class Character:
 
 
 class Player(Character):
-    def __init__(self, name, position, level, stats):
+    def __init__(self, name, position, level, stats, skills):
         super().__init__(name, level, stats)
         self.current_room = position
         self.current_hp = self.max_hp = (
             self.max_hp + self.stats["con"].modifier * self.level
         )
+        self.skills = skills
 
-        # for key, value in self.stats.items():
-        #     mod = int((value - 10) / 2)
-        #     self.modifiers[key] = mod
+    def action(self, skill):
+        attr = find_skill(skill)
+        prof = self.proficiency if skill in self.skills else 0
+        return dice_roll(20) + self.stats[attr].modifier + prof
 
-    def investigate(self):
-        return random.randint(1, 20) + self.stats["int"].modifier + self.proficiency
+    # def investigate(self):
+    #     return dice_roll(20) + self.stats["int"].modifier + self.proficiency
 
+    def attack(self):
+        weapon = [item for item in self.loot if item.name == "sword"]
+        if not weapon:
+            print("You have no weapon!")
+        else:
+            damage = (
+                dice_roll(weapon[0].damage)
+                + self.stats["dex"].modifier
+                + self.proficiency
+            )
+            print(f"You did {damage} points of damage!")
+            return damage
