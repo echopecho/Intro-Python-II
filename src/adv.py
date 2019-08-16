@@ -1,7 +1,7 @@
 import os
 from room import Room
-from player import Player
-from item import Item
+from player import Player, Character
+from item import Item, Weapon
 
 # Declare all the rooms
 
@@ -32,7 +32,7 @@ earlier adventurers. The only exit is to the south.""",
 }
 
 loot = {
-    "rare_weapon": Item(
+    "rare_weapon": Weapon(
         "sword", "Magical weapon that adds +2 to attack and damage rolls"
     ),
     "spell_1": Item("scroll", "Magical scroll containing the Fireball spell"),
@@ -62,6 +62,8 @@ room["treasure"].treasure = [
     loot["legendary_breastplate"],
     loot["gold"],
 ]
+monster_stats = {"str": 16, "dex": 14, "con": 16, "int": 6, "wis": 12, "cha": 6}
+room["treasure"].monsters = [Character("Kobold", 2, monster_stats)]
 
 
 #
@@ -84,12 +86,16 @@ def clear():
     os.system("cls")
 
 
-player = Player("Ned", room["outside"])
+player_stats = {"str": 12, "dex": 14, "con": 16, "int": 10, "wis": 16, "cha": 8}
+player = Player("Ned", room["outside"], 3, player_stats)
+# player.hp += player.modifiers["con"] * player.level
 
 playing = True
 
 clear()
 while playing:
+    # print(player.stats["wis"].score)
+    # print(player.current_hp)
     print(player.current_room)
 
     selection = input(
@@ -146,6 +152,10 @@ What would you like to do next?
         print("-----------")
         for item in player.loot:
             print("  " + item.description)
+
+    elif selection == "a":
+        clear()
+        damage = player.attack()
 
     # Look for an action like get or drop
     elif len(selection.split()) > 1:

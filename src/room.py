@@ -7,6 +7,7 @@ class Room:
         self.name = name
         self.description = description
         self.treasure = []
+        self.monsters = []
 
     def __str__(self):
         return self.name + ":\n" + self.description
